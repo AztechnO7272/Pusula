@@ -98,7 +98,7 @@
         .prayer-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--glass-border); }
         .prayer-row:last-child { border-bottom: none; }
         .controls, .location-input { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 450px; }
-        .btn { background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-primary); padding: 15px 25px; border-radius: 50px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s ease; backdrop-filter: blur(20px); min-width: 140px; text-align: center; }
+        .btn { background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-primary); padding: 15px 25px; border-radius: 50px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s ease; backdrop-filter: blur(20px); min-width: 140px; text-align: center; text-decoration: none;}
         .btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-3px) scale(1.05); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         .btn.active { background: var(--green-gradient); border-color: rgba(0,255,136,0.5); box-shadow: 0 0 30px rgba(0,255,136,0.4); }
         .location-input input { flex: 1; min-width: 140px; padding: 15px 20px; border: 1px solid var(--glass-border); border-radius: 25px; background: var(--glass-bg); color: var(--text-primary); backdrop-filter: blur(20px); font-family: 'Orbitron', monospace; }
@@ -131,6 +131,40 @@
         .radio-group { display: flex; gap: 20px; padding: 12px; }
 
         .hidden { display: none !important; opacity: 0; pointer-events: none; }
+
+        /* ----- YENİ EKLENEN FOOTER STİLLERİ ----- */
+        .site-footer {
+            text-align: center;
+            padding: 30px 20px;
+            margin: 40px auto 20px auto; /* Üstte boşluk, yatayda ortala */
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            border-top: 1px solid var(--glass-border); /* Üstte ayırıcı çizgi */
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            max-width: 800px; /* Diğer içeriklerle aynı hizada durması için */
+            width: calc(100% - 40px);
+        }
+        .footer-logo {
+            fill: var(--text-primary);
+            margin-bottom: 10px;
+            opacity: 0.8;
+            filter: drop-shadow(0 0 5px var(--text-primary));
+        }
+        .footer-text {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .footer-download-btn {
+            background: var(--secondary-gradient); /* Butonu daha dikkat çekici yapar */
+            border-color: transparent;
+        }
+        .footer-download-btn:hover {
+             box-shadow: 0 10px 25px rgba(0,0,0,0.4), 0 0 20px rgba(79, 172, 254, 0.5);
+             transform: translateY(-4px) scale(1.08);
+        }
+
         @media (max-width: 768px) { .compass-container { width: 280px; height: 280px; } .container { padding: 20px 15px; gap: 25px; } .header h1 { font-size: 2rem; } }
     </style>
 </head>
@@ -201,6 +235,16 @@
         </div>
     </main>
 
+    <!-- FOOTER BÖLÜMÜ -->
+    <footer class="site-footer">
+        <svg class="footer-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50">
+            <path d="M21,3H3A2,2 0 0,0 1,5V17A2,2 0 0,0 3,19H8V21H16V19H21A2,2 0 0,0 23,17V5A2,2 0 0,0 21,3M21,17H3V5H21V17Z" />
+        </svg>
+        <p class="footer-text">inadına TV'ye aittir.</p>
+        <a href="https://dosya.co/nkbeqvmq1cca/inadinaTV.apk.html" class="btn footer-download-btn" target="_blank" rel="noopener noreferrer">📲 Uygulamayı İndir</a>
+    </footer>
+    <!-- FOOTER BÖLÜMÜ SONU -->
+
     <!-- Ayarlar Modalı -->
     <div id="settings-modal" class="modal-overlay hidden">
         <div class="modal-content">
@@ -253,7 +297,7 @@
             <p><strong>Kullanılan API'ler:</strong></p>
             <ul>
                 <li><strong>Namaz Vakitleri:</strong> Aladhan API</li>
-                <li><strong>Manyetik Sapma:</strong> magnetic-declination.com API</li>
+                <li><strong>Manyetik Sapma:</strong> magnetic-declination.com API (CORS Proxy ile)</li>
                 <li><strong>Cihaz Sensörleri:</strong> DeviceOrientation API</li>
                 <li><strong>Konum:</strong> Geolocation API</li>
             </ul>
@@ -548,19 +592,42 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) { updateStatus(error.message, 'error'); }
     }
     
+    // =========================================================================
+    // HATA DÜZELTMESİ BURADA YAPILDI (CORS PROXY KULLANIMI)
+    // =========================================================================
     async function fetchMagneticDeclination(lat, lon) {
         try {
-            const response = await fetch(`https://www.magnetic-declination.com/service.php?lat=${lat}&lon=${lon}&result_format=json`);
-            if (!response.ok) throw new Error('Manyetik sapma verisi alınamadı.');
+            // Orijinal API, tarayıcıdan doğrudan çağrıldığında CORS hatası veriyor.
+            // Bu sorunu aşmak için bir CORS proxy'si (aracı servis) kullanıyoruz.
+            const targetUrl = encodeURIComponent(`https://www.magnetic-declination.com/service.php?lat=${lat}&lon=${lon}&result_format=json`);
+            const proxyUrl = `https://api.allorigins.win/raw?url=${targetUrl}`;
+
+            const response = await fetch(proxyUrl);
+            if (!response.ok) {
+                throw new Error('Manyetik sapma verisi proxy üzerinden alınamadı.');
+            }
+            
+            // Proxy'den gelen yanıtın içeriğini .json() ile çözümlüyoruz
             const data = await response.json();
-            magneticDeclination = data.declination;
+
+            // Gelen verinin geçerli bir sayı olduğundan emin olalım
+            const declinationValue = parseFloat(data.declination);
+            if (isNaN(declinationValue)) {
+                throw new Error('API\'den geçersiz manyetik sapma verisi alındı.');
+            }
+
+            magneticDeclination = declinationValue;
             declinationDisplay.textContent = `${magneticDeclination.toFixed(2)}°`;
         } catch (error) {
-            updateStatus(error.message, 'error');
-            magneticDeclination = 0; // Hata durumunda varsayılan
+            console.error("Manyetik sapma alınırken hata:", error);
+            updateStatus(`Manyetik sapma alınamadı: ${error.message}`, 'error');
+            magneticDeclination = 0; // Hata durumunda varsayılan değere dönüyoruz
             declinationDisplay.textContent = 'Alınamadı';
         }
     }
+    // =========================================================================
+    // HATA DÜZELTMESİ SONU
+    // =========================================================================
 
     // ---- Yardımcı Fonksiyonlar ----
     function updateStatus(message, type = 'info') { status.textContent = message; status.className = `status ${type}`; }
@@ -571,4 +638,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 </body>
-</html>
+    </html>
