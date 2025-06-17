@@ -1,0 +1,160 @@
+
+    <!DOCTYPE html>
+    <html lang="tr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Film İzle</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #344966; color: #fff; }
+            .header { position: fixed; top: 0; left: 0; right: 0; background-color: #2c3e50; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
+            h1 { margin: 0; color: #ecf0f1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .search-container { position: relative; transition: width 0.3s; width: 40px; height: 40px; overflow: hidden; }
+            .search-container.active { width: 200px; }
+            #searchInput { padding: 5px 10px; width: 100%; height: 100%; border: none; border-radius: 20px; background-color: #496785; color: #fff; outline: none; }
+            #searchInput::placeholder { color: #bdc3c7; transition: opacity 0.3s; }
+            .search-container:not(.active) #searchInput::placeholder { opacity: 0; }
+            .search-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #bdc3c7; cursor: pointer; }
+            .film-container { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 110px; padding: 10px; }
+            .film-card { width: calc(50% - 10px); margin: 5px; position: relative; overflow: hidden; border-radius: 5px 5px 15px 15px; background-color: #496785; }
+            .film-card img { width: 100%; height: 250px; object-fit: cover; }
+            .film-overlay { position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(44, 62, 80, 0.9); padding: 10px; transform: translateY(100%); transition: transform 0.3s ease; border-radius: 0 0 15px 15px; }
+            .film-card:hover .film-overlay { transform: translateY(0); }
+            .film-title { font-weight: bold; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ecf0f1; }
+            .film-buttons { display: flex; justify-content: space-between; margin-top: 5px; }
+            .btn { padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; font-size: 0.8em; text-decoration: none; color: #fff; }
+            .btn-info { background-color: #f39c12; }
+            .btn-watch { background-color: #3498db; }
+            #loadMore { display: block; width: 200px; margin: 20px auto; padding: 10px; background-color: #f39c12; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+            .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(background-color: rgba(0, 0, 0, 0.8); }
+            .modal-content { margin: 10% auto; padding: 20px; background-color: #fff; border-radius: 10px; width: 80%; max-width: 600px; }
+            .modal-header { display: flex; justify-content: space-between; align-items: center; }
+            .modal-header h2 { margin: 0; color: #333; }
+            .close { font-size: 30px; cursor: pointer; color: #333; }
+            .modal-body { padding: 10px 0; }
+            .modal-body p { color: #333; }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>Film İzle</h1>
+            <div class="search-container" id="searchContainer">
+                <input type="text" id="searchInput" placeholder="Film ara..." />
+                <i class="search-icon" id="searchIcon">🔍</i>
+            </div>
+        </div>
+
+        <div class="film-container" id="filmContainer"></div>
+        <button id="loadMore">Daha Fazla Film Yükle</button>
+
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Film Detayları</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p id="modalFilmTitle">Film Başlığı</p>
+                    <img id="modalFilmImage" src="" alt="Film Resmi" />
+                    <p id="modalFilmSummary">Film Özeti</p>
+                    <p><strong>Yıl:</strong> <span id="modalFilmYear"></span></p>
+                    <p><strong>Süre:</strong> <span id="modalFilmDuration"></span></p>
+                    <p><strong>IMDB:</strong> <span id="modalFilmIMDB"></span></p>
+                    <p><strong>Türler:</strong> <span id="modalFilmGenres"></span></p>
+                    <a id="modalFilmWatchLink" href="" class="btn btn-watch" target="_blank">İzle</a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const films = [];
+            const allGenres = [];
+            const filmContainer = document.getElementById('filmContainer');
+            const loadMoreButton = document.getElementById('loadMore');
+            const searchContainer = document.getElementById('searchContainer');
+            const searchInput = document.getElementById('searchInput');
+            const searchIcon = document.getElementById('searchIcon');
+            const modal = document.getElementById('myModal');
+            const modalFilmTitle = document.getElementById('modalFilmTitle');
+            const modalFilmImage = document.getElementById('modalFilmImage');
+            const modalFilmSummary = document.getElementById('modalFilmSummary');
+            const modalFilmYear = document.getElementById('modalFilmYear');
+            const modalFilmDuration = document.getElementById('modalFilmDuration');
+            const modalFilmIMDB = document.getElementById('modalFilmIMDB');
+            const modalFilmGenres = document.getElementById('modalFilmGenres');
+            const modalFilmWatchLink = document.getElementById('modalFilmWatchLink');
+            const closeModal = document.getElementsByClassName('close')[0];
+
+            let filmIndex = 0;
+            const filmsPerPage = 10;
+
+            function loadFilms() {
+                for (let i = filmIndex; i < filmIndex + filmsPerPage && i < films.length; i++) {
+                    const film = films[i];
+                    const filmCard = document.createElement('div');
+                    filmCard.classList.add('film-card');
+                    filmCard.innerHTML = `
+                        <img src="${film.image}" alt="${film.title}" />
+                        <div class="film-overlay">
+                            <div class="film-title">${film.title}</div>
+                            <div class="film-buttons">
+                                <button class="btn btn-info" onclick="openModal(${i})">Detaylar</button>
+                                <a href="${film.videoUrl}" class="btn btn-watch" target="_blank">İzle</a>
+                            </div>
+                        </div>
+                    `;
+                    filmContainer.appendChild(filmCard);
+                }
+                filmIndex += filmsPerPage;
+                if (filmIndex >= films.length) {
+                    loadMoreButton.style.display = 'none';
+                }
+            }
+
+            function openModal(index) {
+                const film = films[index];
+                modalFilmTitle.textContent = film.title;
+                modalFilmImage.src = film.image;
+                modalFilmSummary.textContent = film.summary;
+                modalFilmYear.textContent = film.year;
+                modalFilmDuration.textContent = film.duration;
+                modalFilmIMDB.textContent = film.imdb;
+                modalFilmGenres.textContent = film.genres.join(', ');
+                modalFilmWatchLink.href = film.videoUrl;
+                modal.style.display = 'block';
+            }
+
+            closeModal.onclick = function() {
+                modal.style.display = 'none';
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            }
+
+            loadMoreButton.addEventListener('click', loadFilms);
+
+            searchIcon.addEventListener('click', () => {
+                searchContainer.classList.toggle('active');
+                if (searchContainer.classList.contains('active')) {
+                    searchInput.focus();
+                }
+            });
+
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                filmContainer.innerHTML = '';
+                filmIndex = 0;
+                const filteredFilms = films.filter(film => film.title.toLowerCase().includes(query));
+                films.length = 0;
+                films.push(...filteredFilms);
+                loadFilms();
+            });
+
+            loadFilms();
+        </script>
+    </body>
+    </html>
+    
