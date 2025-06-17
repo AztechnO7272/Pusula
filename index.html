@@ -1,160 +1,574 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧭 Premium Pusula & Kıble Bulucu</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            /* Kozmik Tema (Varsayılan) */
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            --secondary-gradient: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            --gold-gradient: linear-gradient(45deg, #f6d365 0%, #fda085 100%);
+            --green-gradient: linear-gradient(45deg, #11998e 0%, #38ef7d 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.8);
+            --accent-color: #00ff88;
+            --warning-color: #ff6b6b;
+            --info-color: #4ecdc4;
+            --compass-bg: conic-gradient(from 0deg, #1e3c72, #2a5298, #1e3c72, #2a5298, #1e3c72);
+            --modal-bg: rgba(10, 20, 40, 0.8);
+        }
 
-    <!DOCTYPE html>
-    <html lang="tr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Film İzle</title>
-        <style>
-            body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #344966; color: #fff; }
-            .header { position: fixed; top: 0; left: 0; right: 0; background-color: #2c3e50; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
-            h1 { margin: 0; color: #ecf0f1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-            .search-container { position: relative; transition: width 0.3s; width: 40px; height: 40px; overflow: hidden; }
-            .search-container.active { width: 200px; }
-            #searchInput { padding: 5px 10px; width: 100%; height: 100%; border: none; border-radius: 20px; background-color: #496785; color: #fff; outline: none; }
-            #searchInput::placeholder { color: #bdc3c7; transition: opacity 0.3s; }
-            .search-container:not(.active) #searchInput::placeholder { opacity: 0; }
-            .search-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #bdc3c7; cursor: pointer; }
-            .film-container { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 110px; padding: 10px; }
-            .film-card { width: calc(50% - 10px); margin: 5px; position: relative; overflow: hidden; border-radius: 5px 5px 15px 15px; background-color: #496785; }
-            .film-card img { width: 100%; height: 250px; object-fit: cover; }
-            .film-overlay { position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(44, 62, 80, 0.9); padding: 10px; transform: translateY(100%); transition: transform 0.3s ease; border-radius: 0 0 15px 15px; }
-            .film-card:hover .film-overlay { transform: translateY(0); }
-            .film-title { font-weight: bold; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ecf0f1; }
-            .film-buttons { display: flex; justify-content: space-between; margin-top: 5px; }
-            .btn { padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; font-size: 0.8em; text-decoration: none; color: #fff; }
-            .btn-info { background-color: #f39c12; }
-            .btn-watch { background-color: #3498db; }
-            #loadMore { display: block; width: 200px; margin: 20px auto; padding: 10px; background-color: #f39c12; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
-            .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(background-color: rgba(0, 0, 0, 0.8); }
-            .modal-content { margin: 10% auto; padding: 20px; background-color: #fff; border-radius: 10px; width: 80%; max-width: 600px; }
-            .modal-header { display: flex; justify-content: space-between; align-items: center; }
-            .modal-header h2 { margin: 0; color: #333; }
-            .close { font-size: 30px; cursor: pointer; color: #333; }
-            .modal-body { padding: 10px 0; }
-            .modal-body p { color: #333; }
-        </style>
-    </head>
-    <body>
-        <div class="header">
-            <h1>Film İzle</h1>
-            <div class="search-container" id="searchContainer">
-                <input type="text" id="searchInput" placeholder="Film ara..." />
-                <i class="search-icon" id="searchIcon">🔍</i>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            transition: background 0.5s ease;
+        }
+
+        /* ----- Dinamik Arka Plan ----- */
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
+        .particle { position: absolute; width: 4px; height: 4px; background: rgba(255, 255, 255, 0.3); border-radius: 50%; animation: float 15s infinite linear; }
+        @keyframes float { 0% { transform: translateY(100vh) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-100px) rotate(360deg); opacity: 0; } }
+        .orb { position: absolute; border-radius: 50%; filter: blur(40px); animation: orbFloat 8s ease-in-out infinite; z-index: -1; }
+        .orb1 { width: 200px; height: 200px; background: rgba(102, 126, 234, 0.4); top: 10%; left: 10%; animation-delay: 0s; }
+        .orb2 { width: 150px; height: 150px; background: rgba(240, 147, 251, 0.4); top: 60%; right: 20%; animation-delay: 2s; }
+        .orb3 { width: 100px; height: 100px; background: rgba(79, 172, 254, 0.4); bottom: 20%; left: 60%; animation-delay: 4s; }
+        @keyframes orbFloat { 0%, 100% { transform: translateY(0px) scale(1); } 50% { transform: translateY(-20px) scale(1.1); } }
+
+        /* ----- Ana Yapı ve Başlık ----- */
+        .header { text-align: center; padding: 30px 20px; background: rgba(0,0,0,0.2); backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); position: relative; overflow: hidden; }
+        .header::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); animation: shimmer 3s infinite; }
+        @keyframes shimmer { 0% { left: -100%; } 100% { left: 100%; } }
+        .header h1 { font-family: 'Orbitron', monospace; font-size: 2.5rem; font-weight: 900; margin-bottom: 10px; background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 30px rgba(246, 211, 101, 0.5); animation: titleGlow 2s ease-in-out infinite alternate; }
+        @keyframes titleGlow { from { filter: drop-shadow(0 0 5px rgba(246, 211, 101, 0.3)); } to { filter: drop-shadow(0 0 15px rgba(246, 211, 101, 0.8)); } }
+        .header p { color: var(--text-secondary); font-size: 1.1rem; font-weight: 300; }
+        .container { display: flex; flex-direction: column; align-items: center; padding: 40px 20px; gap: 40px; position: relative; }
+
+        /* ----- Pusula ----- */
+        .compass-container { position: relative; width: 350px; height: 350px; perspective: 1000px; }
+        .compass { width: 100%; height: 100%; border-radius: 50%; background: var(--compass-bg); border: 4px solid var(--glass-border); box-shadow: 0 0 50px rgba(0,0,0,0.4), inset 0 0 30px rgba(255,255,255,0.1), 0 0 100px rgba(102, 126, 234, 0.3); position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; animation: compassPulse 4s ease-in-out infinite; }
+        @keyframes compassPulse { 0%, 100% { box-shadow: 0 0 50px rgba(0,0,0,0.4), inset 0 0 30px rgba(255,255,255,0.1), 0 0 100px rgba(102, 126, 234, 0.3); } 50% { box-shadow: 0 0 80px rgba(0,0,0,0.6), inset 0 0 50px rgba(255,255,255,0.2), 0 0 150px rgba(102, 126, 234, 0.5); } }
+        .compass-ring { position: absolute; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); animation: ringRotate 20s linear infinite; }
+        .ring1 { top: 10px; left: 10px; right: 10px; bottom: 10px; animation-duration: 30s; }
+        .ring2 { top: 20px; left: 20px; right: 20px; bottom: 20px; animation-duration: 25s; animation-direction: reverse; }
+        @keyframes ringRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .compass-face { position: absolute; width: 100%; height: 100%; border-radius: 50%; }
+        .compass-directions { position: absolute; width: 100%; height: 100%; font-family: 'Orbitron', monospace; font-weight: 700; font-size: 24px; }
+        .direction { position: absolute; transform: translate(-50%, -50%); text-shadow: 0 0 10px currentColor; animation: directionGlow 3s ease-in-out infinite alternate; }
+        .direction.n { top: 15px; left: 50%; color: #ff4444; font-size: 28px; text-shadow: 0 0 20px #ff4444; }
+        .direction.e { top: 50%; right: 15px; color: var(--info-color); }
+        .direction.s { bottom: 15px; left: 50%; color: #f093fb; }
+        .direction.w { top: 50%; left: 15px; color: #fda085; }
+        @keyframes directionGlow { from { text-shadow: 0 0 10px currentColor; } to { text-shadow: 0 0 20px currentColor, 0 0 30px currentColor; } }
+        .degree-markers { position: absolute; width: 100%; height: 100%; }
+        .degree-marker { position: absolute; background: rgba(255,255,255,0.6); transform-origin: bottom center; }
+        .major-marker { width: 3px; height: 20px; top: 5px; left: 50%; margin-left: -1.5px; }
+        .minor-marker { width: 1px; height: 10px; top: 10px; left: 50%; margin-left: -0.5px; opacity: 0.4; }
+        .compass-needle { position: absolute; top: 50%; left: 50%; width: 6px; height: 140px; background: linear-gradient(to bottom, #ff4444 0%, #ff6666 20%, #ff4444 45%, #ffffff 50%, #e0e0e0 55%, #ffffff 80%, #f0f0f0 100%); transform-origin: bottom center; transform: translate(-50%, -100%); border-radius: 3px; box-shadow: 0 0 20px rgba(255, 68, 68, 0.6), inset 0 0 10px rgba(255,255,255,0.3); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); animation: needleGlow 2s ease-in-out infinite alternate; }
+        @keyframes needleGlow { from { box-shadow: 0 0 20px rgba(255, 68, 68, 0.6), inset 0 0 10px rgba(255,255,255,0.3); } to { box-shadow: 0 0 30px rgba(255, 68, 68, 0.9), inset 0 0 15px rgba(255,255,255,0.5); } }
+        .qibla-needle { position: absolute; top: 50%; left: 50%; width: 5px; height: 120px; background: var(--green-gradient); transform-origin: bottom center; transform: translate(-50%, -100%); border-radius: 3px; box-shadow: 0 0 25px rgba(0, 255, 136, 0.8), inset 0 0 10px rgba(255,255,255,0.4); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease-in-out; animation: qiblaGlow 1.5s ease-in-out infinite alternate; }
+        @keyframes qiblaGlow { from { box-shadow: 0 0 25px rgba(0, 255, 136, 0.8), inset 0 0 10px rgba(255,255,255,0.4); } to { box-shadow: 0 0 40px rgba(0, 255, 136, 1), inset 0 0 15px rgba(255,255,255,0.6); } }
+        .qibla-aligned-pulse { animation: qiblaAligned 1s ease-in-out infinite; }
+        @keyframes qiblaAligned { 0%, 100% { box-shadow: 0 0 60px rgba(0, 255, 136, 1), inset 0 0 20px white; transform: translate(-50%, -100%) scale(1.05); } 50% { box-shadow: 0 0 40px rgba(0, 255, 136, 0.8), inset 0 0 15px rgba(255,255,255,0.6); transform: translate(-50%, -100%) scale(1); } }
+        .compass-center { position: absolute; top: 50%; left: 50%; width: 30px; height: 30px; background: radial-gradient(circle, #ffffff, #e0e0e0); border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 20px rgba(255,255,255,0.5), inset 0 0 10px rgba(0,0,0,0.2); animation: centerPulse 2s ease-in-out infinite; }
+        @keyframes centerPulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.1); } }
+        
+        /* ----- Bilgi Panelleri ve Butonlar ----- */
+        .info-panel, .prayer-times, .feature-card { background: var(--glass-bg); backdrop-filter: blur(20px); border-radius: 20px; padding: 30px; width: 100%; max-width: 450px; border: 1px solid var(--glass-border); box-shadow: 0 20px 40px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2); position: relative; overflow: hidden; transition: background 0.5s ease, border-color 0.5s ease; }
+        .info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--glass-border); transition: all 0.3s ease; }
+        .info-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
+        .info-label { font-weight: 600; color: var(--text-primary); }
+        .info-value { color: var(--accent-color); font-family: 'Orbitron', monospace; font-weight: 500; text-shadow: 0 0 10px var(--accent-color); }
+        .prayer-times h3 { color: var(--accent-color); font-family: 'Orbitron', monospace; text-align: center; margin-bottom: 20px; font-size: 1.3rem; }
+        .prayer-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--glass-border); }
+        .prayer-row:last-child { border-bottom: none; }
+        .controls, .location-input { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 450px; }
+        .btn { background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-primary); padding: 15px 25px; border-radius: 50px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s ease; backdrop-filter: blur(20px); min-width: 140px; text-align: center; }
+        .btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-3px) scale(1.05); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .btn.active { background: var(--green-gradient); border-color: rgba(0,255,136,0.5); box-shadow: 0 0 30px rgba(0,255,136,0.4); }
+        .location-input input { flex: 1; min-width: 140px; padding: 15px 20px; border: 1px solid var(--glass-border); border-radius: 25px; background: var(--glass-bg); color: var(--text-primary); backdrop-filter: blur(20px); font-family: 'Orbitron', monospace; }
+        .status { text-align: center; padding: 20px; background: var(--glass-bg); border-radius: 15px; margin-top: 20px; backdrop-filter: blur(20px); border: 1px solid var(--glass-border); font-weight: 500; transition: all 0.3s ease; }
+        .status.error { background: rgba(255,107,107,0.1); border-color: var(--warning-color); color: var(--warning-color); }
+        .status.success { background: rgba(0,255,136,0.1); border-color: var(--accent-color); color: var(--accent-color); }
+        .accuracy-indicator { position: absolute; top: -50px; left: 50%; transform: translateX(-50%); padding: 10px 20px; background: var(--glass-bg); backdrop-filter: blur(20px); border-radius: 25px; font-size: 12px; border: 1px solid var(--glass-border); font-family: 'Orbitron', monospace; animation: accuracyFloat 3s ease-in-out infinite; }
+        @keyframes accuracyFloat { 0%, 100% { transform: translateX(-50%) translateY(0px); } 50% { transform: translateX(-50%) translateY(-5px); } }
+        .accuracy-high { color: var(--accent-color); } .accuracy-medium { color: #ffd700; } .accuracy-low { color: var(--warning-color); }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; width: 100%; max-width: 800px; margin-top: 30px; }
+        .feature-card { padding: 20px; text-align: center; transition: all 0.3s ease; cursor: pointer; }
+        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
+        .feature-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
+        .feature-title { font-weight: 600; margin-bottom: 8px; color: var(--text-primary); }
+        .feature-desc { font-size: 0.9rem; color: var(--text-secondary); }
+
+        /* ----- Modal ve Ayarlar ----- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); backdrop-filter: blur(10px); display: flex; justify-content: center; align-items: center; z-index: 1000; transition: opacity 0.3s ease; }
+        .modal-content { background: var(--glass-bg); border: 1px solid var(--glass-border); padding: 30px 40px; border-radius: 20px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; position: relative; }
+        .modal-close-btn { position: absolute; top: 15px; right: 20px; background: none; border: none; color: var(--text-primary); font-size: 2rem; cursor: pointer; }
+        .modal-content h2 { font-family: 'Orbitron', monospace; text-align: center; margin-bottom: 25px; color: var(--accent-color); }
+        .settings-section { margin-bottom: 25px; }
+        .settings-section h3 { margin-bottom: 15px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; }
+        .theme-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; }
+        .theme-btn { padding: 10px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; transition: all 0.3s ease; }
+        .theme-btn.active { border-color: var(--accent-color); transform: scale(1.05); }
+        .settings-form-group { margin-bottom: 15px; }
+        .settings-form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .settings-form-group select, .settings-form-group .radio-group { width: 100%; padding: 12px; background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-primary); border-radius: 8px; font-family: 'Inter', sans-serif; }
+        .radio-group { display: flex; gap: 20px; padding: 12px; }
+
+        .hidden { display: none !important; opacity: 0; pointer-events: none; }
+        @media (max-width: 768px) { .compass-container { width: 280px; height: 280px; } .container { padding: 20px 15px; gap: 25px; } .header h1 { font-size: 2rem; } }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+
+    <header class="header">
+        <h1>🧭 PREMIUM PUSULA & KIBLE BULUCU</h1>
+        <p>Ultra gelişmiş navigasyon ve ibadet yardımcısı</p>
+    </header>
+
+    <main class="container">
+        <div class="compass-container">
+            <div class="compass" id="compass">
+                <div class="compass-ring ring1"></div>
+                <div class="compass-ring ring2"></div>
+                <div class="degree-markers" id="degree-markers"></div>
+                <div class="compass-face">
+                    <div class="compass-directions">
+                        <div class="direction n">K</div><div class="direction e">D</div><div class="direction s">G</div><div class="direction w">B</div>
+                    </div>
+                    <div class="compass-needle" id="needle"></div>
+                    <div class="qibla-needle hidden" id="qibla-needle"></div>
+                    <div class="compass-center"></div>
+                </div>
             </div>
+            <div class="accuracy-indicator" id="accuracy"><span id="accuracy-text">🎯 Kalibrasyon...</span></div>
         </div>
 
-        <div class="film-container" id="filmContainer"></div>
-        <button id="loadMore">Daha Fazla Film Yükle</button>
+        <div class="info-panel">
+            <div class="info-row"><span class="info-label">🧭 Manyetik Yön:</span><span class="info-value" id="magnetic-heading">--°</span></div>
+            <div class="info-row"><span class="info-label">🌍 Gerçek Yön:</span><span class="info-value" id="true-heading">--°</span></div>
+            <div class="info-row"><span class="info-label">📍 Konum:</span><span class="info-value" id="location">Tespit ediliyor...</span></div>
+            <div class="info-row"><span class="info-label">💨 Manyetik Sapma:</span><span class="info-value" id="declination">--°</span></div>
+            <div class="info-row qibla-info hidden" id="qibla-info"><span class="info-label">🕌 Kıble Yönü:</span><span class="info-value" id="qibla-direction">--°</span></div>
+            <div class="info-row qibla-info hidden" id="qibla-distance-info"><span class="info-label">📏 Kâbe Mesafesi:</span><span class="info-value" id="qibla-distance">-- km</span></div>
+            <div class="info-row"><span class="info-label">⏱️ Yerel Saat:</span><span class="info-value" id="local-time">--:--</span></div>
+        </div>
 
-        <div id="myModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Film Detayları</h2>
-                    <span class="close">&times;</span>
+        <div class="prayer-times hidden" id="prayer-times">
+            <h3>🕌 NAMAZ VAKİTLERİ</h3>
+            <div class="prayer-row"><span>İmsak</span><span id="imsak-time">--:--</span></div>
+            <div class="prayer-row"><span>Güneş</span><span id="sunrise-time">--:--</span></div>
+            <div class="prayer-row"><span>Öğle</span><span id="dhuhr-time">--:--</span></div>
+            <div class="prayer-row"><span>İkindi</span><span id="asr-time">--:--</span></div>
+            <div class="prayer-row"><span>Akşam</span><span id="maghrib-time">--:--</span></div>
+            <div class="prayer-row"><span>Yatsı</span><span id="isha-time">--:--</span></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="permission-btn">🛰️ Erişime İzin Ver</button>
+            <button class="btn" id="qibla-btn">🕋 Kıbleyi Göster</button>
+        </div>
+
+        <div class="location-input hidden" id="manual-location-form">
+             <input type="text" id="lat-input" placeholder="Enlem (Örn: 41.015)"><input type="text" id="lon-input" placeholder="Boylam (Örn: 28.979)"><button class="btn" id="set-location-btn">Ayarla</button>
+        </div>
+        
+        <div id="status" class="status">Cihaz sensörleri ve konum izni bekleniyor...</div>
+
+        <div class="feature-grid">
+            <div class="feature-card" id="manual-location-toggle"><span class="feature-icon">✍️</span><h4 class="feature-title">Manuel Konum</h4><p class="feature-desc">Konumunuzu elle girerek kıble ve vakitleri hesaplayın.</p></div>
+            <div class="feature-card" id="settings-btn"><span class="feature-icon">⚙️</span><h4 class="feature-title">Ayarlar</h4><p class="feature-desc">Tema, hesaplama metodu ve diğer ayarları değiştirin.</p></div>
+            <div class="feature-card" id="about-btn"><span class="feature-icon">ℹ️</span><h4 class="feature-title">Hakkında</h4><p class="feature-desc">Uygulama ve kullanılan teknolojiler hakkında bilgi.</p></div>
+        </div>
+    </main>
+
+    <!-- Ayarlar Modalı -->
+    <div id="settings-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" data-close-modal="settings-modal">×</button>
+            <h2>⚙️ Uygulama Ayarları</h2>
+            
+            <div class="settings-section">
+                <h3>🎨 Tema Seçimi</h3>
+                <div class="theme-buttons" id="theme-selector">
+                    <button class="theme-btn" data-theme="cosmic" style="background: linear-gradient(135deg, #667eea, #764ba2);">Kozmik</button>
+                    <button class="theme-btn" data-theme="midnight" style="background: #1D2B49; color: #fff;">Gece</button>
+                    <button class="theme-btn" data-theme="ocean" style="background: linear-gradient(135deg, #2193b0, #6dd5ed);">Okyanus</button>
+                    <button class="theme-btn" data-theme="desert" style="background: linear-gradient(135deg, #202020, #434343); color: #FAD02E;">Çöl</button>
+                    <button class="theme-btn" data-theme="forest" style="background: linear-gradient(135deg, #0f2027, #2c5364); color: #9EF01A;">Orman</button>
                 </div>
-                <div class="modal-body">
-                    <p id="modalFilmTitle">Film Başlığı</p>
-                    <img id="modalFilmImage" src="" alt="Film Resmi" />
-                    <p id="modalFilmSummary">Film Özeti</p>
-                    <p><strong>Yıl:</strong> <span id="modalFilmYear"></span></p>
-                    <p><strong>Süre:</strong> <span id="modalFilmDuration"></span></p>
-                    <p><strong>IMDB:</strong> <span id="modalFilmIMDB"></span></p>
-                    <p><strong>Türler:</strong> <span id="modalFilmGenres"></span></p>
-                    <a id="modalFilmWatchLink" href="" class="btn btn-watch" target="_blank">İzle</a>
+            </div>
+
+            <div class="settings-section">
+                <h3>🕌 Namaz Vakti Ayarları</h3>
+                <div class="settings-form-group">
+                    <label for="calculation-method">Hesaplama Metodu:</label>
+                    <select id="calculation-method">
+                        <option value="3">Diyanet (Türkiye)</option>
+                        <option value="2">ISNA (Kuzey Amerika)</option>
+                        <option value="4">Umm Al-Qura (Mekke)</option>
+                        <option value="5">Mısır Otoritesi</option>
+                        <option value="1">MWL (Müslüman Dünya Ligi)</option>
+                        <option value="8">Kuveyt</option>
+                        <option value="10">Katar</option>
+                    </select>
+                </div>
+                <div class="settings-form-group">
+                    <label>İkindi Vakti Hesabı:</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="asr-method" value="0" checked> Standart</label>
+                        <label><input type="radio" name="asr-method" value="1"> Hanefi</label>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <script>
-            const films = [];
-            const allGenres = [];
-            const filmContainer = document.getElementById('filmContainer');
-            const loadMoreButton = document.getElementById('loadMore');
-            const searchContainer = document.getElementById('searchContainer');
-            const searchInput = document.getElementById('searchInput');
-            const searchIcon = document.getElementById('searchIcon');
-            const modal = document.getElementById('myModal');
-            const modalFilmTitle = document.getElementById('modalFilmTitle');
-            const modalFilmImage = document.getElementById('modalFilmImage');
-            const modalFilmSummary = document.getElementById('modalFilmSummary');
-            const modalFilmYear = document.getElementById('modalFilmYear');
-            const modalFilmDuration = document.getElementById('modalFilmDuration');
-            const modalFilmIMDB = document.getElementById('modalFilmIMDB');
-            const modalFilmGenres = document.getElementById('modalFilmGenres');
-            const modalFilmWatchLink = document.getElementById('modalFilmWatchLink');
-            const closeModal = document.getElementsByClassName('close')[0];
-
-            let filmIndex = 0;
-            const filmsPerPage = 10;
-
-            function loadFilms() {
-                for (let i = filmIndex; i < filmIndex + filmsPerPage && i < films.length; i++) {
-                    const film = films[i];
-                    const filmCard = document.createElement('div');
-                    filmCard.classList.add('film-card');
-                    filmCard.innerHTML = `
-                        <img src="${film.image}" alt="${film.title}" />
-                        <div class="film-overlay">
-                            <div class="film-title">${film.title}</div>
-                            <div class="film-buttons">
-                                <button class="btn btn-info" onclick="openModal(${i})">Detaylar</button>
-                                <a href="${film.videoUrl}" class="btn btn-watch" target="_blank">İzle</a>
-                            </div>
-                        </div>
-                    `;
-                    filmContainer.appendChild(filmCard);
-                }
-                filmIndex += filmsPerPage;
-                if (filmIndex >= films.length) {
-                    loadMoreButton.style.display = 'none';
-                }
-            }
-
-            function openModal(index) {
-                const film = films[index];
-                modalFilmTitle.textContent = film.title;
-                modalFilmImage.src = film.image;
-                modalFilmSummary.textContent = film.summary;
-                modalFilmYear.textContent = film.year;
-                modalFilmDuration.textContent = film.duration;
-                modalFilmIMDB.textContent = film.imdb;
-                modalFilmGenres.textContent = film.genres.join(', ');
-                modalFilmWatchLink.href = film.videoUrl;
-                modal.style.display = 'block';
-            }
-
-            closeModal.onclick = function() {
-                modal.style.display = 'none';
-            }
-
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    modal.style.display = 'none';
-                }
-            }
-
-            loadMoreButton.addEventListener('click', loadFilms);
-
-            searchIcon.addEventListener('click', () => {
-                searchContainer.classList.toggle('active');
-                if (searchContainer.classList.contains('active')) {
-                    searchInput.focus();
-                }
-            });
-
-            searchInput.addEventListener('input', function() {
-                const query = this.value.toLowerCase();
-                filmContainer.innerHTML = '';
-                filmIndex = 0;
-                const filteredFilms = films.filter(film => film.title.toLowerCase().includes(query));
-                films.length = 0;
-                films.push(...filteredFilms);
-                loadFilms();
-            });
-
-            loadFilms();
-        </script>
-    </body>
-    </html>
+    <!-- Hakkında Modalı -->
+    <div id="about-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" data-close-modal="about-modal">×</button>
+            <h2>ℹ️ Hakkında</h2>
+            <p>Bu uygulama, modern web teknolojileri kullanılarak geliştirilmiş gelişmiş bir pusula ve kıble bulucudur.</p>
+            <br>
+            <p><strong>Kullanılan API'ler:</strong></p>
+            <ul>
+                <li><strong>Namaz Vakitleri:</strong> Aladhan API</li>
+                <li><strong>Manyetik Sapma:</strong> magnetic-declination.com API</li>
+                <li><strong>Cihaz Sensörleri:</strong> DeviceOrientation API</li>
+                <li><strong>Konum:</strong> Geolocation API</li>
+            </ul>
+            <br>
+            <p>Geliştirme ve tasarım, kullanıcı deneyimini en üst düzeye çıkarmak için özenle yapılmıştır.</p>
+        </div>
+    </div>
     
+    <audio id="alignment-sound" src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU9vT19O/xAUAB0AHgAgAB0AGgAXABUAFQAVABkAFwAZABkAGQAZABgAGQAWABoAFQAZABYAGQASABkAEgAYABIAFwARABYAEQAUAA8AEQAPABEADwAQAA8ADgAOAA4ADQANAAwADQAMAAwACwAKAAoACgAKAAoACgAJAAkACQAJAAgACAAIAAgACAAIAAcABwAHAAcABwAGAAcABgAGAAcABgAGAAUABgAFAAUABQAFAAUABQAFAAQABQAEAAQABAAEAAQABAAEAAQAAwADAAQAAwADAAQAAwADAAIAAwACAAIAAgACAAIAAgACAAIAAgABAAIAAgACAAIAAgACAAEAAQABAAEAAQABAAEAAQABAAAAQABAAEAAQABAAAAQAAAAEAAQAAAAAAAQAAAAAAAQAAAAEAAQAAAAAAARAAAAAAAAAAAAAAAAA="></audio>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // ---- DOM Elementleri ----
+    const compass = document.getElementById('compass');
+    const needle = document.getElementById('needle');
+    const qiblaNeedle = document.getElementById('qibla-needle');
+    const magneticHeading = document.getElementById('magnetic-heading');
+    const trueHeading = document.getElementById('true-heading');
+    const locationDisplay = document.getElementById('location');
+    const declinationDisplay = document.getElementById('declination');
+    const qiblaDirection = document.getElementById('qibla-direction');
+    const qiblaDistance = document.getElementById('qibla-distance');
+    const qiblaInfo = document.getElementById('qibla-info');
+    const qiblaDistanceInfo = document.getElementById('qibla-distance-info');
+    const localTime = document.getElementById('local-time');
+    const status = document.getElementById('status');
+    const permissionBtn = document.getElementById('permission-btn');
+    const qiblaBtn = document.getElementById('qibla-btn');
+    const prayerTimesPanel = document.getElementById('prayer-times');
+    const particlesContainer = document.getElementById('particles');
+    const degreeMarkersContainer = document.getElementById('degree-markers');
+    const accuracyText = document.getElementById('accuracy-text');
+    const manualLocationForm = document.getElementById('manual-location-form');
+    const manualLocationToggle = document.getElementById('manual-location-toggle');
+    const setLocationBtn = document.getElementById('set-location-btn');
+    const latInput = document.getElementById('lat-input');
+    const lonInput = document.getElementById('lon-input');
+    const settingsBtn = document.getElementById('settings-btn');
+    const aboutBtn = document.getElementById('about-btn');
+    const settingsModal = document.getElementById('settings-modal');
+    const aboutModal = document.getElementById('about-modal');
+    const themeSelector = document.getElementById('theme-selector');
+    const calculationMethodSelect = document.getElementById('calculation-method');
+    const asrMethodRadios = document.querySelectorAll('input[name="asr-method"]');
+    const alignmentSound = document.getElementById('alignment-sound');
+
+    // ---- Sabitler ve Değişkenler ----
+    const KAABA_LAT = 21.4225;
+    const KAABA_LON = 39.8262;
+    let userLat, userLon, magneticDeclination = 0;
+    let isQiblaMode = false;
+    let currentHeading = 0;
+    let isAligned = false; // Kıble hizalaması için bayrak
+
+    // ---- Ayarlar ----
+    let settings = {
+        theme: 'cosmic',
+        calculationMethod: '3', // Diyanet varsayılan
+        asrSchool: '0' // Standart varsayılan
+    };
+
+    const themes = {
+        cosmic: {
+            '--primary-gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+            '--glass-bg': 'rgba(255, 255, 255, 0.1)', '--glass-border': 'rgba(255, 255, 255, 0.2)',
+            '--text-primary': '#ffffff', '--text-secondary': 'rgba(255, 255, 255, 0.8)',
+            '--compass-bg': 'conic-gradient(from 0deg, #1e3c72, #2a5298, #1e3c72, #2a5298, #1e3c72)',
+            '--modal-bg': 'rgba(10, 20, 40, 0.8)',
+        },
+        midnight: {
+            '--primary-gradient': 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
+            '--glass-bg': 'rgba(0, 0, 0, 0.2)', '--glass-border': 'rgba(255, 255, 255, 0.15)',
+            '--text-primary': '#e0e0e0', '--text-secondary': 'rgba(224, 224, 224, 0.7)',
+            '--compass-bg': '#191919', '--modal-bg': 'rgba(0, 0, 0, 0.7)',
+        },
+        ocean: {
+            '--primary-gradient': 'linear-gradient(135deg, #2193b0, #6dd5ed)',
+            '--glass-bg': 'rgba(255, 255, 255, 0.15)', '--glass-border': 'rgba(255, 255, 255, 0.3)',
+            '--text-primary': '#ffffff', '--text-secondary': 'rgba(255, 255, 255, 0.85)',
+            '--compass-bg': 'conic-gradient(from 0deg, #004e64, #00a5cf, #004e64, #00a5cf, #004e64)',
+            '--modal-bg': 'rgba(0, 78, 100, 0.8)',
+        },
+        desert: {
+            '--primary-gradient': 'linear-gradient(135deg, #202020, #434343)',
+            '--glass-bg': 'rgba(250, 208, 46, 0.08)', '--glass-border': 'rgba(250, 208, 46, 0.2)',
+            '--text-primary': '#FAD02E', '--text-secondary': 'rgba(250, 208, 46, 0.7)',
+            '--accent-color': '#FAD02E', '--compass-bg': '#1a1a1a', '--modal-bg': 'rgba(20, 20, 20, 0.8)',
+        },
+        forest: {
+            '--primary-gradient': 'linear-gradient(135deg, #0f2027, #2c5364)',
+            '--glass-bg': 'rgba(158, 240, 26, 0.08)', '--glass-border': 'rgba(158, 240, 26, 0.2)',
+            '--text-primary': '#9EF01A', '--text-secondary': 'rgba(158, 240, 26, 0.7)',
+            '--accent-color': '#9EF01A', '--compass-bg': '#0a1a1f', '--modal-bg': 'rgba(10, 20, 25, 0.8)',
+        }
+    };
+    
+    // ---- Başlangıç Fonksiyonları ----
+    function init() {
+        loadSettings();
+        createParticles(40);
+        createDegreeMarkers();
+        updateClock();
+        setInterval(updateClock, 1000);
+        setupEventListeners();
+    }
+
+    function createParticles(count) { for (let i = 0; i < count; i++) { const p = document.createElement('div'); p.className = 'particle'; p.style.left = `${Math.random()*100}%`; p.style.animationDuration = `${Math.random()*10+10}s`; p.style.animationDelay = `${Math.random()*10}s`; const s = Math.random()*3+1; p.style.width=`${s}px`; p.style.height=`${s}px`; particlesContainer.appendChild(p); } }
+    function createDegreeMarkers() { for (let i = 0; i < 360; i++) { const m = document.createElement('div'); if (i % 30 === 0) { m.className = 'degree-marker major-marker'; } else if (i % 5 === 0) { m.className = 'degree-marker minor-marker'; } if (m.className) { m.style.transform = `rotate(${i}deg)`; degreeMarkersContainer.appendChild(m); } } }
+    
+    function setupEventListeners() {
+        permissionBtn.addEventListener('click', requestPermissions);
+        qiblaBtn.addEventListener('click', toggleQiblaMode);
+        manualLocationToggle.addEventListener('click', () => manualLocationForm.classList.toggle('hidden'));
+        setLocationBtn.addEventListener('click', setManualLocation);
+        
+        // Modal Listeners
+        settingsBtn.addEventListener('click', () => openModal('settings-modal'));
+        aboutBtn.addEventListener('click', () => openModal('about-modal'));
+        document.querySelectorAll('.modal-close-btn').forEach(btn => btn.addEventListener('click', () => closeModal(btn.dataset.closeModal)));
+        document.querySelectorAll('.modal-overlay').forEach(overlay => overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(overlay.id); }));
+
+        // Settings Listeners
+        themeSelector.addEventListener('click', handleThemeChange);
+        calculationMethodSelect.addEventListener('change', handlePrayerSettingsChange);
+        asrMethodRadios.forEach(radio => radio.addEventListener('change', handlePrayerSettingsChange));
+        
+        // Pusula 3D efekti
+        compass.addEventListener('mousemove', (e) => { const rect = e.target.getBoundingClientRect(); const x = e.clientX-rect.left-rect.width/2; const y = e.clientY-rect.top-rect.height/2; const rX=-y/(rect.height/2)*15; const rY=x/(rect.width/2)*15; compass.style.transform=`rotateX(${rX}deg) rotateY(${rY}deg)`; });
+        compass.addEventListener('mouseleave', () => { compass.style.transform = 'rotateX(0) rotateY(0)'; });
+    }
+
+    // ---- Ayarlar Yönetimi ----
+    function loadSettings() {
+        const savedSettings = JSON.parse(localStorage.getItem('compassSettings'));
+        if (savedSettings) {
+            settings = { ...settings, ...savedSettings };
+        }
+        applyTheme(settings.theme);
+        updateSettingsUI();
+    }
+    function saveSettings() { localStorage.setItem('compassSettings', JSON.stringify(settings)); }
+    function applyTheme(themeName) {
+        const theme = themes[themeName] || themes.cosmic;
+        for (const [key, value] of Object.entries(theme)) {
+            document.documentElement.style.setProperty(key, value);
+        }
+        document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.theme-btn[data-theme="${themeName}"]`).classList.add('active');
+        settings.theme = themeName;
+    }
+    function updateSettingsUI() {
+        calculationMethodSelect.value = settings.calculationMethod;
+        document.querySelector(`input[name="asr-method"][value="${settings.asrSchool}"]`).checked = true;
+    }
+    function handleThemeChange(e) {
+        if (e.target.matches('.theme-btn')) {
+            applyTheme(e.target.dataset.theme);
+            saveSettings();
+        }
+    }
+    function handlePrayerSettingsChange() {
+        settings.calculationMethod = calculationMethodSelect.value;
+        settings.asrSchool = document.querySelector('input[name="asr-method"]:checked').value;
+        saveSettings();
+        if (userLat && userLon) {
+            updateStatus('Namaz vakitleri yeni ayarlarla güncelleniyor...', 'info');
+            fetchPrayerTimes(userLat, userLon);
+        }
+    }
+
+    // ---- Modal Yönetimi ----
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    
+    // ---- İzin ve Sensör Yönetimi ----
+    function requestPermissions() {
+        updateStatus('İzinler isteniyor...', 'info');
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            DeviceOrientationEvent.requestPermission().then(state => {
+                if (state === 'granted') { startOrientationListener(); getLocation(); } 
+                else { updateStatus('Sensör erişim izni reddedildi.', 'error'); }
+            }).catch(console.error);
+        } else { startOrientationListener(); getLocation(); }
+    }
+    
+    function startOrientationListener() {
+        const eventName = 'deviceorientationabsolute' in window ? 'deviceorientationabsolute' : 'deviceorientation';
+        window.addEventListener(eventName, handleOrientation, true);
+        updateStatus('Sensörler aktif. Konum bekleniyor...', 'info');
+    }
+
+    function handleOrientation(event) {
+        let alpha = event.alpha;
+        if (typeof event.webkitCompassHeading !== 'undefined') { alpha = -event.webkitCompassHeading; }
+        
+        currentHeading = alpha;
+        needle.style.transform = `translate(-50%, -100%) rotate(${-currentHeading}deg)`;
+        magneticHeading.textContent = `${Math.round(currentHeading)}°`;
+        
+        const trueNorth = (currentHeading + magneticDeclination + 360) % 360;
+        trueHeading.textContent = `${Math.round(trueNorth)}°`;
+        
+        if (isQiblaMode) { updateQiblaNeedle(trueNorth); }
+        updateAccuracy(event.absolute, event.alpha);
+    }
+    
+    function updateAccuracy(isAbsolute, alpha) {
+        if (isAbsolute === false || alpha === null) { accuracyText.parentElement.className = 'accuracy-indicator accuracy-low'; accuracyText.textContent = '🎯 Düşük Hassasiyet'; }
+        else { accuracyText.parentElement.className = 'accuracy-indicator accuracy-high'; accuracyText.textContent = '🎯 Yüksek Hassasiyet'; }
+    }
+
+    // ---- Konum Yönetimi ----
+    function getLocation() {
+        navigator.geolocation.getCurrentPosition(handleLocationSuccess, handleLocationError, { enableHighAccuracy: true });
+    }
+    
+    function handleLocationSuccess(position) {
+        userLat = position.coords.latitude;
+        userLon = position.coords.longitude;
+        locationDisplay.textContent = `${userLat.toFixed(3)}, ${userLon.toFixed(3)}`;
+        updateStatus('Konum başarıyla tespit edildi. Veriler yükleniyor...', 'success');
+        
+        fetchMagneticDeclination(userLat, userLon);
+        fetchPrayerTimes(userLat, userLon);
+        if (isQiblaMode) calculateAndDisplayQibla();
+    }
+
+    function handleLocationError(error) { updateStatus(`Konum alınamadı: ${error.message}`, 'error'); }
+    function setManualLocation() { const lat = parseFloat(latInput.value); const lon = parseFloat(lonInput.value); if (!isNaN(lat) && !isNaN(lon)) { handleLocationSuccess({ coords: { latitude: lat, longitude: lon } }); manualLocationForm.classList.add('hidden'); } else { updateStatus('Geçersiz enlem veya boylam.', 'error'); } }
+
+    // ---- Kıble Hesaplama ve Gösterim ----
+    function toggleQiblaMode() {
+        if (!userLat || !userLon) { updateStatus('Kıble için önce konum izni verin.', 'error'); return; }
+        isQiblaMode = !isQiblaMode;
+        qiblaBtn.classList.toggle('active', isQiblaMode);
+        qiblaBtn.innerHTML = isQiblaMode ? '🧭 Pusulaya Dön' : '🕋 Kıbleyi Göster';
+        qiblaNeedle.classList.toggle('hidden', !isQiblaMode);
+        qiblaInfo.classList.toggle('hidden', !isQiblaMode);
+        qiblaDistanceInfo.classList.toggle('hidden', !isQiblaMode);
+        prayerTimesPanel.classList.toggle('hidden', !isQiblaMode);
+        if (isQiblaMode) calculateAndDisplayQibla();
+    }
+
+    function calculateAndDisplayQibla() {
+        const qiblaDeg = calculateQiblaDirection(userLat, userLon);
+        qiblaDirection.textContent = `${qiblaDeg.toFixed(2)}°`;
+        qiblaDistance.textContent = `${Math.round(calculateDistance(userLat, userLon, KAABA_LAT, KAABA_LON))} km`;
+    }
+
+    function updateQiblaNeedle(trueNorth) {
+        if (!isQiblaMode || !userLat) return;
+        const qiblaDeg = calculateQiblaDirection(userLat, userLon);
+        const rotation = qiblaDeg - trueNorth;
+        qiblaNeedle.style.transform = `translate(-50%, -100%) rotate(${rotation}deg)`;
+        
+        // Hizalama kontrolü
+        const alignmentDifference = Math.abs(rotation % 360);
+        if (alignmentDifference < 1.0 || alignmentDifference > 359.0) {
+            if (!isAligned) {
+                isAligned = true;
+                qiblaNeedle.classList.add('qibla-aligned-pulse');
+                if (navigator.vibrate) navigator.vibrate(200);
+                alignmentSound.play().catch(e => {}); // Otomatik oynatma engellenebilir
+            }
+        } else {
+            if (isAligned) {
+                isAligned = false;
+                qiblaNeedle.classList.remove('qibla-aligned-pulse');
+            }
+        }
+    }
+
+    function calculateQiblaDirection(lat, lon) { const pK=KAABA_LAT*Math.PI/180; const lK=KAABA_LON*Math.PI/180; const p=lat*Math.PI/180; const l=lon*Math.PI/180; const psi=180/Math.PI*Math.atan2(Math.sin(lK-l),(Math.cos(p)*Math.tan(pK))-(Math.sin(p)*Math.cos(lK-l))); return (psi+360)%360; }
+    function calculateDistance(lat1, lon1, lat2, lon2) { const R=6371; const dLat=(lat2-lat1)*Math.PI/180; const dLon=(lon2-lon1)*Math.PI/180; const a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2); const c=2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); return R*c; }
+
+    // ---- API İstekleri ----
+    async function fetchPrayerTimes(lat, lon) {
+        try {
+            const date = new Date();
+            const url = `https://api.aladhan.com/v1/calendar/${date.getFullYear()}/${date.getMonth()+1}?latitude=${lat}&longitude=${lon}&method=${settings.calculationMethod}&school=${settings.asrSchool}`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Namaz vakitleri alınamadı.');
+            const data = await response.json();
+            
+            const timings = data.data[date.getDate() - 1].timings;
+            document.getElementById('imsak-time').textContent = timings.Imsak.split(' ')[0];
+            document.getElementById('sunrise-time').textContent = timings.Sunrise.split(' ')[0];
+            document.getElementById('dhuhr-time').textContent = timings.Dhuhr.split(' ')[0];
+            document.getElementById('asr-time').textContent = timings.Asr.split(' ')[0];
+            document.getElementById('maghrib-time').textContent = timings.Maghrib.split(' ')[0];
+            document.getElementById('isha-time').textContent = timings.Isha.split(' ')[0];
+        } catch (error) { updateStatus(error.message, 'error'); }
+    }
+    
+    async function fetchMagneticDeclination(lat, lon) {
+        try {
+            const response = await fetch(`https://www.magnetic-declination.com/service.php?lat=${lat}&lon=${lon}&result_format=json`);
+            if (!response.ok) throw new Error('Manyetik sapma verisi alınamadı.');
+            const data = await response.json();
+            magneticDeclination = data.declination;
+            declinationDisplay.textContent = `${magneticDeclination.toFixed(2)}°`;
+        } catch (error) {
+            updateStatus(error.message, 'error');
+            magneticDeclination = 0; // Hata durumunda varsayılan
+            declinationDisplay.textContent = 'Alınamadı';
+        }
+    }
+
+    // ---- Yardımcı Fonksiyonlar ----
+    function updateStatus(message, type = 'info') { status.textContent = message; status.className = `status ${type}`; }
+    function updateClock() { const n=new Date(); localTime.textContent = `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`; }
+
+    // Uygulamayı başlat
+    init();
+});
+</script>
+</body>
+</html>
